@@ -15,7 +15,7 @@ import (
 	"os"
 	"time"
 
-	ipki "github.com/mohdjishin/crypto/Iipki"
+	ipki "github.com/mohdjishin/crypto/Ipki"
 )
 
 type PKI struct{}
