@@ -7,6 +7,8 @@ import (
 	"github.com/mohdjishin/crypto/rsautil"
 )
 
+var key = rsautil.KeyGeneration()
+
 func main() {
 
 	fmt.Println("1. Generate a private key and a self-signed certificate")
@@ -22,40 +24,40 @@ func main() {
 
 	switch choice {
 	case 1:
-		err := rsautil.GenerateAndSaveKeyPair("privatekey.pem", "certificate.crt", "publickey.pem")
+		err := key.GenerateAndSaveKeyPair("privatekey.pem", "certificate.crt", "publickey.pem")
 		if err != nil {
 			fmt.Printf("Failed to generate and save key pair: %v\n", err)
 		}
 	case 2:
-		err := rsautil.SavePublicKeyToFile("certificate.crt", "publickey_extracted_from_cert.pem")
+		err := key.SavePublicKeyToFile("certificate.crt", "publickey_extracted_from_cert.pem")
 		if err != nil {
 			fmt.Printf("Failed to extract public key: %v\n", err)
 		} else {
 			fmt.Println("Public key saved to publickey.pem")
 		}
 	case 3:
-		err := rsautil.SignMessageWithPrivateKey("privatekey.pem", "message.txt", "signature.dat")
+		err := key.SignMessageWithPrivateKey("privatekey.pem", "message.txt", "signature.dat")
 		if err != nil {
 			fmt.Printf("Failed to sign message: %v\n", err)
 		} else {
 			fmt.Println("Message signed and signature saved to signature.dat")
 		}
 	case 4:
-		err := rsautil.ValidateSignatureWithCertificate("certificate.crt", "message.txt", "signature.dat")
+		err := key.ValidateSignatureWithCertificate("certificate.crt", "message.txt", "signature.dat")
 		if err != nil {
 			fmt.Printf("Invalid signature: %v\n", err)
 		} else {
 			fmt.Println("Signature is valid.")
 		}
 	case 5:
-		err := rsautil.VerifySignatureWithPublicKey("publickey.pem", "message.txt", "signature.dat")
+		err := key.VerifySignatureWithPublicKey("publickey.pem", "message.txt", "signature.dat")
 		if err != nil {
 			fmt.Printf("Failed to verify signature: %v\n", err)
 		} else {
 			fmt.Println("Signature is valid.")
 		}
 	case 6:
-		err := rsautil.SavePublicKeyToFile("certificate.crt", "publickey.pem")
+		err := key.SavePublicKeyToFile("certificate.crt", "publickey.pem")
 		if err != nil {
 			fmt.Printf("Failed to save public key: %v\n", err)
 		} else {

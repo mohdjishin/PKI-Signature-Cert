@@ -14,7 +14,15 @@ import (
 	"math/big"
 	"os"
 	"time"
+
+	ipki "github.com/mohdjishin/crypto/Iipki"
 )
+
+type PKI struct{}
+
+func KeyGeneration() ipki.IPKI {
+	return &PKI{}
+}
 
 func saveSignatureToFile(signature []byte, filePath string) error {
 	// Create the output file
@@ -43,7 +51,7 @@ func loadSignatureFromFile(filePath string) ([]byte, error) {
 	return signature, nil
 }
 
-func LoadCertificate(certificateFile string) (*x509.Certificate, *rsa.PublicKey, error) {
+func loadCertificate(certificateFile string) (*x509.Certificate, *rsa.PublicKey, error) {
 
 	// Read the certificate file
 	certPEM, err := ioutil.ReadFile(certificateFile)
@@ -72,7 +80,7 @@ func LoadCertificate(certificateFile string) (*x509.Certificate, *rsa.PublicKey,
 	return cert, publicKey, nil
 }
 
-func SavePublicKeyToFile(certificateFile, filePath string) error {
+func (*PKI) SavePublicKeyToFile(certificateFile, filePath string) error {
 	// Read the certificate file
 	certPEM, err := ioutil.ReadFile(certificateFile)
 	if err != nil {
@@ -119,7 +127,7 @@ func SavePublicKeyToFile(certificateFile, filePath string) error {
 	return nil
 }
 
-func GenerateAndSaveKeyPair(privateKeyFile, certificateFile, publicKeyFile string) error {
+func (p *PKI) GenerateAndSaveKeyPair(privateKeyFile, certificateFile, publicKeyFile string) error {
 	// Generate a private key
 	privateKey, err := rsa.GenerateKey(rand.Reader, 4096) // 4096 is the key size in bits,can also use 2048,1024
 	if err != nil {
@@ -185,7 +193,7 @@ func GenerateAndSaveKeyPair(privateKeyFile, certificateFile, publicKeyFile strin
 	}
 
 	// Save the public key to a file
-	err = SavePublicKeyToFile(certificateFile, publicKeyFile)
+	err = p.SavePublicKeyToFile(certificateFile, publicKeyFile)
 	if err != nil {
 		// Cleanup the private key and certificate files if saving the public key failed
 		_ = os.Remove(privateKeyFile)
@@ -196,7 +204,7 @@ func GenerateAndSaveKeyPair(privateKeyFile, certificateFile, publicKeyFile strin
 	return nil
 }
 
-func SignMessageWithPrivateKey(privateKeyFile, messageFile, signatureFile string) error {
+func (p *PKI) SignMessageWithPrivateKey(privateKeyFile, messageFile, signatureFile string) error {
 	// Load the private key
 	privateKeyPEM, err := ioutil.ReadFile(privateKeyFile)
 	if err != nil {
@@ -222,7 +230,7 @@ func SignMessageWithPrivateKey(privateKeyFile, messageFile, signatureFile string
 	}
 
 	// Sign the message
-	signature, err := SignMessage(privateKey, message)
+	signature, err := p.SignMessage(privateKey, message)
 	if err != nil {
 		return err
 	}
@@ -236,9 +244,9 @@ func SignMessageWithPrivateKey(privateKeyFile, messageFile, signatureFile string
 	return nil
 }
 
-func ValidateSignatureWithCertificate(certificateFile, messageFile, signatureFile string) error {
+func (*PKI) ValidateSignatureWithCertificate(certificateFile, messageFile, signatureFile string) error {
 	// Load the certificate and public key
-	cert, publicKey, err := LoadCertificate(certificateFile)
+	cert, publicKey, err := loadCertificate(certificateFile)
 	if err != nil {
 		return err
 	}
@@ -270,7 +278,7 @@ func ValidateSignatureWithCertificate(certificateFile, messageFile, signatureFil
 	return nil
 }
 
-func VerifySignatureWithPublicKey(publicKeyFile, messageFile, signatureFile string) error {
+func (*PKI) VerifySignatureWithPublicKey(publicKeyFile, messageFile, signatureFile string) error {
 	// Read the public key file
 	publicKeyPEM, err := ioutil.ReadFile(publicKeyFile)
 	if err != nil {
@@ -310,7 +318,7 @@ func VerifySignatureWithPublicKey(publicKeyFile, messageFile, signatureFile stri
 	return nil
 }
 
-func SignMessage(privateKey *rsa.PrivateKey, message []byte) ([]byte, error) {
+func (*PKI) SignMessage(privateKey *rsa.PrivateKey, message []byte) ([]byte, error) {
 	hashed := sha256.Sum256(message)
 	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hashed[:])
 	if err != nil {
